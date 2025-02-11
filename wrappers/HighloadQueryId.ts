@@ -1,11 +1,11 @@
 const BIT_NUMBER_SIZE = 10n; // 10 bit
 const SHIFT_SIZE = 13n; // 13 bit
-const MAX_BIT_NUMBER = 1022n;
+const MAX_BIT_NUMBER = 1023n;
 const MAX_SHIFT = 8191n; // 2^13 = 8192
 
 export class HighloadQueryId {
     private shift: bigint; // [0 .. 8191]
-    private bitnumber: bigint; // [0 .. 1022]
+    private bitnumber: bigint; // [0 .. 1023]
 
     constructor() {
         this.shift = 0n;
@@ -20,6 +20,12 @@ export class HighloadQueryId {
         q.bitnumber = bitnumber;
         if (q.bitnumber < 0) throw new Error('invalid bitnumber');
         if (q.bitnumber > MAX_BIT_NUMBER) throw new Error('invalid bitnumber');
+        // NOTE: we left one queryId for emergency withdraw
+        if (q.shift === MAX_SHIFT && q.bitnumber === MAX_BIT_NUMBER) {
+            throw new Error(
+                'invalid shift and bitnumber combination which results in using the emergency queryId',
+            )
+        }
         return q;
     }
 
